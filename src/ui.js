@@ -18,6 +18,9 @@ export function showSummary(state) {
 
     document.getElementById('btn-close').onclick = () => {
         el.classList.remove('open');
+        // Re-enable hamburger after summary closes
+        const btn = document.getElementById('btn-menu');
+        if (btn) btn.removeAttribute('disabled');
     };
     document.getElementById('btn-export-json').onclick = () => exportJson(state);
     document.getElementById('btn-snapshot').onclick = () => snapshot();

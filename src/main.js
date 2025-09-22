@@ -2,6 +2,7 @@ import './styles/app.css';
 import './styles/_tokens.css';
 import { initMap, setParkedPin, drawTrack, getMap, updateUser } from './map.js';
 import { startRecording, pauseRecording, resumeRecording, stopRecording } from './recording.js';
+import { computeButtonStates } from './state.js';
 import { showSummary } from './ui.js';
 
 if ('serviceWorker' in navigator) {
@@ -15,26 +16,31 @@ const $ = (id) => document.getElementById(id);
 // Try to center on user's current location on load
 let lastKnown = null;
 if (navigator.geolocation) {
+    setGpsPending(true);
     navigator.geolocation.getCurrentPosition((pos) => {
         const { latitude, longitude } = pos.coords;
         const map = getMap();
         map.setView([latitude, longitude], 17);
         updateUser(latitude, longitude);
         lastKnown = { lat: latitude, lon: longitude };
+        setGpsPending(false);
     }, (err) => {
         toastGeoError(err);
+        setGpsPending(false);
     }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
 }
 
 // Wire right-side controls
 function recenterToCurrent() {
     if (!navigator.geolocation) return;
+    setGpsPending(true);
     navigator.geolocation.getCurrentPosition((pos) => {
         const { latitude, longitude } = pos.coords;
         const map = getMap();
         map.setView([latitude, longitude], 17);
         updateUser(latitude, longitude);
         lastKnown = { lat: latitude, lon: longitude };
+        setGpsPending(false);
     }, (err) => {
         if (lastKnown) {
             const map = getMap();
@@ -43,6 +49,7 @@ function recenterToCurrent() {
         } else {
             toastGeoError(err);
         }
+        setGpsPending(false);
     }, { enableHighAccuracy: true, timeout: 8000, maximumAge: 5000 });
 }
 $('#btn-center')?.addEventListener('click', recenterToCurrent);
@@ -70,6 +77,7 @@ $('#btn-stop')?.addEventListener('click', async () => {
     if (!confirmStop) return;
     const state = await stopRecording();
     setRecordingUI('idle');
+    disableHamburger(true);
     showSummary(state);
 });
 
@@ -111,52 +119,27 @@ $('#menu-stop')?.addEventListener('click', async () => {
     if (!confirmStop) return;
     const state = await stopRecording();
     setRecordingUI('idle');
+    disableHamburger(true);
     showSummary(state);
 });
 
 function setRecordingUI(state) {
-    const start = $('#btn-start');
-    const pause = $('#btn-pause');
-    const resume = $('#btn-resume');
-    const stop = $('#btn-stop');
-    // Desktop buttons
-    if (state === 'recording') {
-        start?.setAttribute('disabled', 'true');
-        pause?.removeAttribute('disabled');
-        resume?.setAttribute('disabled', 'true');
-        stop?.removeAttribute('disabled');
-    } else if (state === 'paused') {
-        start?.setAttribute('disabled', 'true');
-        pause?.setAttribute('disabled', 'true');
-        resume?.removeAttribute('disabled');
-        stop?.removeAttribute('disabled');
-    } else { // idle
-        start?.removeAttribute('disabled');
-        pause?.setAttribute('disabled', 'true');
-        resume?.setAttribute('disabled', 'true');
-        stop?.setAttribute('disabled', 'true');
-    }
-    // Mirror menu buttons
-    const mStart = $('#menu-start');
-    const mPause = $('#menu-pause');
-    const mResume = $('#menu-resume');
-    const mStop = $('#menu-stop');
-    if (state === 'recording') {
-        mStart?.setAttribute('disabled', 'true');
-        mPause?.removeAttribute('disabled');
-        mResume?.setAttribute('disabled', 'true');
-        mStop?.removeAttribute('disabled');
-    } else if (state === 'paused') {
-        mStart?.setAttribute('disabled', 'true');
-        mPause?.setAttribute('disabled', 'true');
-        mResume?.removeAttribute('disabled');
-        mStop?.removeAttribute('disabled');
-    } else {
-        mStart?.removeAttribute('disabled');
-        mPause?.setAttribute('disabled', 'true');
-        mResume?.setAttribute('disabled', 'true');
-        mStop?.setAttribute('disabled', 'true');
-    }
+    const mapBtn = (el, disabled) => disabled ? el?.setAttribute('disabled', 'true') : el?.removeAttribute('disabled');
+    const desktop = {
+        start: $('#btn-start'), pause: $('#btn-pause'), resume: $('#btn-resume'), stop: $('#btn-stop')
+    };
+    const menu = {
+        start: $('#menu-start'), pause: $('#menu-pause'), resume: $('#menu-resume'), stop: $('#menu-stop')
+    };
+    const states = computeButtonStates(state);
+    mapBtn(desktop.start, states.start);
+    mapBtn(desktop.pause, states.pause);
+    mapBtn(desktop.resume, states.resume);
+    mapBtn(desktop.stop, states.stop);
+    mapBtn(menu.start, states.start);
+    mapBtn(menu.pause, states.pause);
+    mapBtn(menu.resume, states.resume);
+    mapBtn(menu.stop, states.stop);
 }
 
 // Initialize to idle state
@@ -191,4 +174,16 @@ function toastError(msg) {
     } else {
         alert(msg);
     }
+}
+
+function setGpsPending(pending) {
+    const el = document.getElementById('gps-status');
+    if (!el) return;
+    if (pending) el.removeAttribute('hidden'); else el.setAttribute('hidden', '');
+}
+
+function disableHamburger(disabled) {
+    const btn = document.getElementById('btn-menu');
+    if (!btn) return;
+    if (disabled) btn.setAttribute('disabled', 'true'); else btn.removeAttribute('disabled');
 }

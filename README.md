@@ -2,7 +2,6 @@
 Usually we park our bikes in parking lot when we go for the malls so we did not remember so this is the app where u dont need to remember.
 
 ---
-
 # Footprints Finder — Web (HTML/CSS/JS + Node)
 
 A mobile-friendly PWA to record a precise walking path and retrace it to your parked vehicle. Privacy-first: all data stays on-device with optional export.

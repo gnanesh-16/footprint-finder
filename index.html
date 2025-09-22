@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="theme-color" content="#0A0A0A" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <title>Footprints Finder</title>
+</head>
+
+<body>
+    <div id="app">
+        <header class="header">
+            <div class="title">Footprints Finder</div>
+            <div class="actions">
+                <button id="btn-menu" aria-label="Open menu">☰</button>
+            </div>
+        </header>
+        <!-- Slide-over menu for mobile -->
+        <div id="menu" class="menu" aria-hidden="true">
+            <div id="menu-backdrop" class="menu-backdrop" tabindex="-1" aria-hidden="true"></div>
+            <nav class="menu-panel" aria-label="Main menu">
+                <div class="menu-header">
+                    <div class="menu-title">Menu</div>
+                    <button id="btn-menu-close" class="menu-close" aria-label="Close menu">✕</button>
+                </div>
+                <div class="menu-group">
+                    <button id="menu-center">Re-center</button>
+                    <button id="menu-parked">Set parked location</button>
+                </div>
+                <div class="menu-group">
+                    <button id="menu-start" class="menu-start">Start</button>
+                    <button id="menu-pause" class="menu-pause">Pause</button>
+                    <button id="menu-resume" class="menu-resume">Resume</button>
+                    <button id="menu-stop" class="menu-stop">Stop</button>
+                </div>
+                <div class="menu-group subtle">
+                    <button id="menu-history" disabled>History (coming soon)</button>
+                </div>
+            </nav>
+        </div>
+        <main class="map-wrap">
+            <div id="map" role="application" aria-label="Map"></div>
+            <div class="controls-right">
+                <button id="btn-center" title="Re-center" aria-label="Re-center">⊙</button>
+                <button id="btn-compass" title="Compass" aria-label="Compass">🧭</button>
+                <button id="btn-parked" title="Set parked location" aria-label="Set parked location">P</button>
+            </div>
+            <div class="controls-bottom">
+                <button id="btn-start" class="primary">Start</button>
+                <button id="btn-pause">Pause</button>
+                <button id="btn-resume">Resume</button>
+                <button id="btn-stop" class="recording">Stop</button>
+            </div>
+            <section id="sheet" class="sheet" aria-live="polite"></section>
+        </main>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>

@@ -52,16 +52,20 @@ function recenterToCurrent() {
         setGpsPending(false);
     }, { enableHighAccuracy: true, timeout: 8000, maximumAge: 5000 });
 }
-$('#btn-center')?.addEventListener('click', recenterToCurrent);
-$('#btn-parked')?.addEventListener('click', () => {
+const onTap = (el, fn) => {
+    el?.addEventListener('click', fn);
+    el?.addEventListener('touchend', (e) => { e.preventDefault(); fn(e); }, { passive: false });
+};
+onTap($('#btn-center'), recenterToCurrent);
+onTap($('#btn-parked'), () => {
     const map = getMap();
     const center = map.getCenter();
     setParkedPin([center.lat, center.lng], Date.now());
 });
-$('#btn-compass')?.addEventListener('click', () => { toastError('Compass coming soon'); });
+onTap($('#btn-compass'), () => { toastError('Compass coming soon'); });
 
 // Bottom recording controls
-$('#btn-start')?.addEventListener('click', async () => {
+onTap($('#btn-start'), async () => {
     try {
         setRecordingUI('recording');
         await startRecording((point) => drawTrack(point));
@@ -70,9 +74,9 @@ $('#btn-start')?.addEventListener('click', async () => {
         toastError(e.message || 'Failed to start recording');
     }
 });
-$('#btn-pause')?.addEventListener('click', () => { pauseRecording(); setRecordingUI('paused'); });
-$('#btn-resume')?.addEventListener('click', () => { resumeRecording((p) => drawTrack(p)); setRecordingUI('recording'); });
-$('#btn-stop')?.addEventListener('click', async () => {
+onTap($('#btn-pause'), () => { pauseRecording(); setRecordingUI('paused'); });
+onTap($('#btn-resume'), () => { resumeRecording((p) => drawTrack(p)); setRecordingUI('recording'); });
+onTap($('#btn-stop'), async () => {
     const confirmStop = confirm('Stop recording?');
     if (!confirmStop) return;
     const state = await stopRecording();
@@ -94,14 +98,14 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(
 menuBackdrop?.addEventListener('click', closeMenu);
 
 // Menu actions mirror main controls
-$('#menu-center')?.addEventListener('click', () => { recenter(); closeMenu(); });
-$('#menu-parked')?.addEventListener('click', () => {
+onTap($('#menu-center'), () => { recenterToCurrent(); closeMenu(); });
+onTap($('#menu-parked'), () => {
     const map = getMap();
     const c = map.getCenter();
     setParkedPin([c.lat, c.lng], Date.now());
     closeMenu();
 });
-$('#menu-start')?.addEventListener('click', async () => {
+onTap($('#menu-start'), async () => {
     try {
         closeMenu();
         setRecordingUI('recording');
@@ -111,9 +115,9 @@ $('#menu-start')?.addEventListener('click', async () => {
         toastError(e.message || 'Failed to start recording');
     }
 });
-$('#menu-pause')?.addEventListener('click', () => { pauseRecording(); setRecordingUI('paused'); closeMenu(); });
-$('#menu-resume')?.addEventListener('click', () => { resumeRecording((p) => drawTrack(p)); setRecordingUI('recording'); closeMenu(); });
-$('#menu-stop')?.addEventListener('click', async () => {
+onTap($('#menu-pause'), () => { pauseRecording(); setRecordingUI('paused'); closeMenu(); });
+onTap($('#menu-resume'), () => { resumeRecording((p) => drawTrack(p)); setRecordingUI('recording'); closeMenu(); });
+onTap($('#menu-stop'), async () => {
     closeMenu();
     const confirmStop = confirm('Stop recording?');
     if (!confirmStop) return;

@@ -14,7 +14,7 @@
         <header class="header">
             <div class="title">Footprints Finder</div>
             <div class="actions">
-                <button id="btn-menu" aria-label="Open menu">☰</button>
+                <button id="btn-menu" type="button" aria-label="Open menu">☰</button>
             </div>
         </header>
         <!-- Slide-over menu for mobile -->
@@ -23,17 +23,17 @@
             <nav class="menu-panel" aria-label="Main menu">
                 <div class="menu-header">
                     <div class="menu-title">Menu</div>
-                    <button id="btn-menu-close" class="menu-close" aria-label="Close menu">✕</button>
+                    <button id="btn-menu-close" type="button" class="menu-close" aria-label="Close menu">✕</button>
                 </div>
                 <div class="menu-group">
-                    <button id="menu-center">Re-center</button>
-                    <button id="menu-parked">Set parked location</button>
+                    <button id="menu-center" type="button">Re-center</button>
+                    <button id="menu-parked" type="button">Set parked location</button>
                 </div>
                 <div class="menu-group">
-                    <button id="menu-start" class="menu-start">Start</button>
-                    <button id="menu-pause" class="menu-pause">Pause</button>
-                    <button id="menu-resume" class="menu-resume">Resume</button>
-                    <button id="menu-stop" class="menu-stop">Stop</button>
+                    <button id="menu-start" type="button" class="menu-start">Start</button>
+                    <button id="menu-pause" type="button" class="menu-pause">Pause</button>
+                    <button id="menu-resume" type="button" class="menu-resume">Resume</button>
+                    <button id="menu-stop" type="button" class="menu-stop">Stop</button>
                 </div>
                 <div class="menu-group subtle">
                     <button id="menu-history" disabled>History (coming soon)</button>
@@ -46,15 +46,16 @@
                 Looking for GPS…
             </div>
             <div class="controls-right">
-                <button id="btn-center" title="Re-center" aria-label="Re-center">⊙</button>
-                <button id="btn-compass" title="Compass" aria-label="Compass">🧭</button>
-                <button id="btn-parked" title="Set parked location" aria-label="Set parked location">P</button>
+                <button id="btn-center" type="button" title="Re-center" aria-label="Re-center">⊙</button>
+                <button id="btn-compass" type="button" title="Compass" aria-label="Compass">🧭</button>
+                <button id="btn-parked" type="button" title="Set parked location"
+                    aria-label="Set parked location">P</button>
             </div>
             <div class="controls-bottom">
-                <button id="btn-start" class="primary">Start</button>
-                <button id="btn-pause">Pause</button>
-                <button id="btn-resume">Resume</button>
-                <button id="btn-stop" class="recording">Stop</button>
+                <button id="btn-start" type="button" class="primary">Start</button>
+                <button id="btn-pause" type="button">Pause</button>
+                <button id="btn-resume" type="button">Resume</button>
+                <button id="btn-stop" type="button" class="recording">Stop</button>
             </div>
             <section id="sheet" class="sheet" aria-live="polite"></section>
         </main>

@@ -1,6 +1,6 @@
 import './styles/app.css';
 import './styles/_tokens.css';
-import { initMap, recenter, setParkedPin, drawTrack, getMap } from './map.js';
+import { initMap, setParkedPin, drawTrack, getMap, updateUser } from './map.js';
 import { startRecording, pauseRecording, resumeRecording, stopRecording } from './recording.js';
 import { showSummary } from './ui.js';
 
@@ -13,26 +13,45 @@ initMap();
 const $ = (id) => document.getElementById(id);
 
 // Try to center on user's current location on load
+let lastKnown = null;
 if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition((pos) => {
         const { latitude, longitude } = pos.coords;
         const map = getMap();
         map.setView([latitude, longitude], 17);
+        updateUser(latitude, longitude);
+        lastKnown = { lat: latitude, lon: longitude };
     }, (err) => {
         toastGeoError(err);
     }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
 }
 
 // Wire right-side controls
-$('#btn-center')?.addEventListener('click', recenter);
+function recenterToCurrent() {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition((pos) => {
+        const { latitude, longitude } = pos.coords;
+        const map = getMap();
+        map.setView([latitude, longitude], 17);
+        updateUser(latitude, longitude);
+        lastKnown = { lat: latitude, lon: longitude };
+    }, (err) => {
+        if (lastKnown) {
+            const map = getMap();
+            map.setView([lastKnown.lat, lastKnown.lon], 17);
+            updateUser(lastKnown.lat, lastKnown.lon);
+        } else {
+            toastGeoError(err);
+        }
+    }, { enableHighAccuracy: true, timeout: 8000, maximumAge: 5000 });
+}
+$('#btn-center')?.addEventListener('click', recenterToCurrent);
 $('#btn-parked')?.addEventListener('click', () => {
     const map = getMap();
     const center = map.getCenter();
     setParkedPin([center.lat, center.lng], Date.now());
 });
-$('#btn-compass')?.addEventListener('click', () => {
-    toastError('Compass coming soon');
-});
+$('#btn-compass')?.addEventListener('click', () => { toastError('Compass coming soon'); });
 
 // Bottom recording controls
 $('#btn-start')?.addEventListener('click', async () => {
@@ -59,8 +78,11 @@ const menu = $('#menu');
 const menuBackdrop = $('#menu-backdrop');
 const openMenu = () => { menu?.classList.add('open'); menu?.setAttribute('aria-hidden', 'false'); };
 const closeMenu = () => { menu?.classList.remove('open'); menu?.setAttribute('aria-hidden', 'true'); };
-$('#btn-menu')?.addEventListener('click', openMenu);
+const btnMenu = $('#btn-menu');
+btnMenu?.addEventListener('click', openMenu);
+btnMenu?.addEventListener('touchend', (e) => { e.preventDefault(); openMenu(); }, { passive: false });
 $('#btn-menu-close')?.addEventListener('click', closeMenu);
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
 menuBackdrop?.addEventListener('click', closeMenu);
 
 // Menu actions mirror main controls
@@ -155,6 +177,17 @@ function toastGeoError(err) {
         sheet.innerHTML = `<div class="badge">${msg}</div>`;
         sheet.classList.add('open');
         setTimeout(() => sheet.classList.remove('open'), 4000);
+    } else {
+        alert(msg);
+    }
+}
+
+function toastError(msg) {
+    const sheet = document.getElementById('sheet');
+    if (sheet && !sheet.classList.contains('open')) {
+        sheet.innerHTML = `<div class="badge">${msg}</div>`;
+        sheet.classList.add('open');
+        setTimeout(() => sheet.classList.remove('open'), 3000);
     } else {
         alert(msg);
     }
